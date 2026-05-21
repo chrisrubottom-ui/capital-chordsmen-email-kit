@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Capital Chordsmen Email HTML Builder</title>
+  <style>
+    :root {
+      --brand-navy: #0f2a44;
+      --brand-gold: #cda349;
+      --brand-light: #f5f7fa;
+      --text-dark: #1f2933;
+      --border: #d7dee8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text-dark);
+      background: #eef2f7;
+      line-height: 1.4;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+    }
+
+    .panel, .preview-panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 3px 12px rgba(15, 42, 68, 0.08);
+    }
+
+    h1 { margin: 0 0 10px; color: var(--brand-navy); font-size: 1.5rem; }
+    h2 { margin: 20px 0 8px; color: var(--brand-navy); font-size: 1rem; }
+
+    .hint { font-size: 0.9rem; color: #4b5d70; margin-bottom: 14px; }
+
+    label { display: block; font-weight: bold; margin: 10px 0 6px; font-size: 0.9rem; }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      border: 1px solid #c8d3e0;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    textarea { min-height: 70px; resize: vertical; }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .actions { display: flex; gap: 8px; margin-top: 16px; }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      background: var(--brand-navy);
+      color: #fff;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    button.secondary { background: #4a6178; }
+
+    #copyStatus { font-size: 0.85rem; color: #2f6f3e; margin-top: 8px; min-height: 1.2em; }
+
+    iframe {
+      width: 100%;
+      min-height: 720px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .output-wrap { margin-top: 14px; }
+
+    #htmlOutput {
+      width: 100%;
+      min-height: 180px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.8rem;
+      background: #f8fbff;
+    }
+
+    @media (max-width: 980px) {
+      .page { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="panel">
+      <h1>Capital Chordsmen Email Builder</h1>
+      <p class="hint">Fill in fields to generate email-friendly HTML. Use the preview to review, then copy/paste into your email editor.</p>
+
+      <label for="emailType">Email Type</label>
+      <select id="emailType">
+        <option value="communique">Communique distribution email</option>
+        <option value="newsletter">Weekly member newsletter: What's Happening!</option>
+      </select>
+
+      <h2>Header Content</h2>
+      <label for="subject">Subject</label>
+      <input id="subject" type="text" placeholder="Example: Capital Chordsmen Communique - May 2026" />
+
+      <label for="preheader">Preheader</label>
+      <input id="preheader" type="text" placeholder="Short preview text shown in inboxes" />
+
+      <label for="headline">Headline</label>
+      <input id="headline" type="text" placeholder="Main headline" />
+
+      <label for="intro">Intro</label>
+      <textarea id="intro" placeholder="Opening paragraph"></textarea>
+
+      <h2>Body Sections</h2>
+      <label for="section1">Section 1</label>
+      <textarea id="section1" placeholder="Section content"></textarea>
+
+      <label for="section2">Section 2</label>
+      <textarea id="section2" placeholder="Section content"></textarea>
+
+      <label for="section3">Section 3</label>
+      <textarea id="section3" placeholder="Section content"></textarea>
+
+      <h2>Call to Action</h2>
+      <div class="row">
+        <div>
+          <label for="ctaText">CTA Text</label>
+          <input id="ctaText" type="text" placeholder="Learn More" />
+        </div>
+        <div>
+          <label for="ctaUrl">CTA URL</label>
+          <input id="ctaUrl" type="text" placeholder="https://example.com" />
+        </div>
+      </div>
+
+      <h2>Footer</h2>
+      <label for="footerNotes">Footer Notes</label>
+      <textarea id="footerNotes" placeholder="Any footer details"></textarea>
+
+      <label for="unsubscribeUrl">Optional Unsubscribe URL</label>
+      <input id="unsubscribeUrl" type="text" placeholder="https://example.com/unsubscribe" />
+
+      <div class="actions">
+        <button id="generateBtn">Generate HTML</button>
+        <button id="copyBtn" class="secondary">Copy HTML</button>
+      </div>
+      <div id="copyStatus"></div>
+    </div>
+
+    <div class="preview-panel">
+      <h2 style="margin-top:0;">Live Preview</h2>
+      <iframe id="previewFrame" title="Email preview"></iframe>
+
+      <div class="output-wrap">
+        <h2>Generated HTML</h2>
+        <textarea id="htmlOutput" readonly></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fields = {
+      emailType: document.getElementById('emailType'),
+      subject: document.getElementById('subject'),
+      preheader: document.getElementById('preheader'),
+      headline: document.getElementById('headline'),
+      intro: document.getElementById('intro'),
+      section1: document.getElementById('section1'),
+      section2: document.getElementById('section2'),
+      section3: document.getElementById('section3'),
+      ctaText: document.getElementById('ctaText'),
+      ctaUrl: document.getElementById('ctaUrl'),
+      footerNotes: document.getElementById('footerNotes'),
+      unsubscribeUrl: document.getElementById('unsubscribeUrl')
+    };
+
+    const htmlOutput = document.getElementById('htmlOutput');
+    const previewFrame = document.getElementById('previewFrame');
+    const copyStatus = document.getElementById('copyStatus');
+
+    function esc(value) {
+      return (value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/\n/g, '<br>');
+    }
+
+    function buildSection(text) {
+      if (!text.trim()) return '';
+      return `<tr><td style="padding:0 24px 16px;color:#1f2933;font-size:16px;line-height:1.5;">${esc(text)}</td></tr>`;
+    }
+
+    function buildEmailHtml() {
+      const type = fields.emailType.value;
+      const subject = fields.subject.value || (type === 'communique' ? 'Capital Chordsmen Communique' : "What's Happening!");
+      const preheader = fields.preheader.value || 'Capital Chordsmen update';
+      const headline = fields.headline.value || subject;
+      const intro = fields.intro.value || 'Hello Capital Chordsmen community,';
+      const ctaText = fields.ctaText.value || 'Read More';
+      const ctaUrl = fields.ctaUrl.value || 'https://capitalchordsmen.org';
+      const footerNotes = fields.footerNotes.value || 'Capital Chordsmen • Keep the whole world singing!';
+      const unsubscribeUrl = fields.unsubscribeUrl.value.trim();
+
+      const sectionHtml = [fields.section1.value, fields.section2.value, fields.section3.value]
+        .map(buildSection)
+        .join('');
+
+      let complianceHtml = '';
+      if (type === 'communique') {
+        const unsubscribeLine = unsubscribeUrl
+          ? `<a href="${esc(unsubscribeUrl)}" style="color:#4a6178;text-decoration:underline;">Unsubscribe</a>`
+          : 'To unsubscribe, reply to this email or contact your chapter administrator.';
+
+        complianceHtml = `
+          <tr>
+            <td style="padding:14px 24px 20px;color:#4a6178;font-size:12px;line-height:1.5;border-top:1px solid #d7dee8;">
+              This communication is intended for Capital Chordsmen distribution lists.<br>${unsubscribeLine}
+            </td>
+          </tr>`;
+      }
+
+      return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${esc(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${esc(preheader)}</div>
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#eef2f7;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="640" style="width:640px;max-width:640px;background:#ffffff;border:1px solid #d7dee8;">
+          <tr>
+            <td style="background:#0f2a44;color:#ffffff;padding:20px 24px;font-size:22px;font-weight:bold;">
+              Capital Chordsmen
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:22px 24px 10px;color:#0f2a44;font-size:28px;line-height:1.2;font-weight:bold;">
+              ${esc(headline)}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 24px 18px;color:#1f2933;font-size:16px;line-height:1.5;">
+              ${esc(intro)}
+            </td>
+          </tr>
+          ${sectionHtml}
+          <tr>
+            <td style="padding:12px 24px 24px;">
+              <a href="${esc(ctaUrl)}" style="display:inline-block;background:#cda349;color:#0f2a44;padding:12px 18px;text-decoration:none;font-size:16px;font-weight:bold;border-radius:3px;">
+                ${esc(ctaText)}
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:14px 24px;color:#4a6178;font-size:13px;line-height:1.5;border-top:1px solid #d7dee8;">
+              ${esc(footerNotes)}
+            </td>
+          </tr>
+          ${complianceHtml}
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+    }
+
+    function render() {
+      const html = buildEmailHtml();
+      htmlOutput.value = html;
+      previewFrame.srcdoc = html;
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', render);
+
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(htmlOutput.value);
+        copyStatus.textContent = 'HTML copied to clipboard.';
+      } catch (error) {
+        copyStatus.textContent = 'Copy failed. Select and copy from the text area manually.';
+      }
+    });
+
+    Object.values(fields).forEach((field) => {
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+
+    fields.subject.value = 'Capital Chordsmen Communique';
+    fields.preheader.value = 'Chapter updates and upcoming opportunities';
+    fields.headline.value = 'Capital Chordsmen Update';
+    fields.intro.value = 'Hello singers and friends, here are the latest chapter updates.';
+    fields.section1.value = 'Rehearsal this week is Tuesday at 7:00 PM.';
+    fields.section2.value = 'Performance signups are open for next month.';
+    fields.ctaText.value = 'View Full Calendar';
+    fields.ctaUrl.value = 'https://capitalchordsmen.org/calendar';
+    fields.footerNotes.value = 'Capital Chordsmen | Washington, DC area chapter updates';
+
+    render();
+  </script>
+</body>
+</html>
