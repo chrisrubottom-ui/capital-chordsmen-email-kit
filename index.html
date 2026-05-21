@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Capital Chordsmen Email Builder</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f3f4f6; color: #111827; }
+    .page { max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 420px 1fr; gap: 20px; }
+    .panel { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 16px; }
+    h1 { margin: 0 0 8px; font-size: 1.4rem; }
+    h2 { margin: 18px 0 8px; font-size: 1rem; }
+    .note { padding: 10px; border: 1px solid #f59e0b; background: #fffbeb; border-radius: 6px; font-size: .9rem; margin-bottom: 12px; }
+    label { display: block; margin: 10px 0 6px; font-weight: 700; font-size: .9rem; }
+    input, textarea, select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; }
+    textarea { min-height: 70px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .actions { display: flex; gap: 8px; margin-top: 14px; }
+    button { border: 0; border-radius: 6px; padding: 10px 12px; cursor: pointer; font-weight: 700; background: #1f2937; color: #fff; }
+    button.secondary { background: #4b5563; }
+    #copyStatus { min-height: 1.2em; font-size: .85rem; margin-top: 8px; }
+    iframe { width: 100%; min-height: 720px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; }
+    #htmlOutput { width: 100%; min-height: 190px; font-family: "Courier New", monospace; font-size: .8rem; margin-top: 10px; }
+    @media (max-width: 980px) { .page { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="panel">
+      <h1>Capital Chordsmen Email Builder</h1>
+      <div class="note">
+        Source-dependent mode: this repo currently does not contain the Email Brand Kit or approved HTML template files. This tool avoids guessing brand colors/layout and generates a safe baseline HTML draft.
+      </div>
+
+      <label for="emailType">Email Type</label>
+      <select id="emailType">
+        <option value="communique">Communique distribution email</option>
+        <option value="newsletter">Weekly member newsletter: What's Happening!</option>
+      </select>
+
+      <h2>Header</h2>
+      <label for="subject">Subject</label>
+      <input id="subject" type="text" placeholder="Capital Chordsmen Communique" />
+      <label for="preheader">Preheader</label>
+      <input id="preheader" type="text" />
+      <label for="headline">Headline</label>
+      <input id="headline" type="text" />
+      <label for="intro">Intro</label>
+      <textarea id="intro"></textarea>
+
+      <h2>Sections</h2>
+      <label for="section1">Section 1</label>
+      <textarea id="section1"></textarea>
+      <label for="section2">Section 2</label>
+      <textarea id="section2"></textarea>
+      <label for="section3">Section 3</label>
+      <textarea id="section3"></textarea>
+
+      <h2>CTA</h2>
+      <div class="row">
+        <div>
+          <label for="ctaText">CTA Text</label>
+          <input id="ctaText" type="text" />
+        </div>
+        <div>
+          <label for="ctaUrl">CTA URL</label>
+          <input id="ctaUrl" type="text" placeholder="https://capitalchordsmen.com" />
+        </div>
+      </div>
+
+      <h2>Footer</h2>
+      <label for="footerNotes">Footer Notes</label>
+      <textarea id="footerNotes"></textarea>
+      <label for="unsubscribeUrl">Optional Unsubscribe URL</label>
+      <input id="unsubscribeUrl" type="text" placeholder="Use approved list-unsubscribe URL from your email platform" />
+
+      <div class="actions">
+        <button id="generateBtn">Generate HTML</button>
+        <button id="copyBtn" class="secondary">Copy HTML</button>
+      </div>
+      <div id="copyStatus"></div>
+    </div>
+
+    <div class="panel">
+      <h2 style="margin-top:0;">Live Preview</h2>
+      <iframe id="previewFrame"></iframe>
+      <h2>Generated HTML</h2>
+      <textarea id="htmlOutput" readonly></textarea>
+    </div>
+  </div>
+
+<script>
+const fields = {
+  emailType: document.getElementById('emailType'),
+  subject: document.getElementById('subject'),
+  preheader: document.getElementById('preheader'),
+  headline: document.getElementById('headline'),
+  intro: document.getElementById('intro'),
+  section1: document.getElementById('section1'),
+  section2: document.getElementById('section2'),
+  section3: document.getElementById('section3'),
+  ctaText: document.getElementById('ctaText'),
+  ctaUrl: document.getElementById('ctaUrl'),
+  footerNotes: document.getElementById('footerNotes'),
+  unsubscribeUrl: document.getElementById('unsubscribeUrl')
+};
+
+const htmlOutput = document.getElementById('htmlOutput');
+const previewFrame = document.getElementById('previewFrame');
+const copyStatus = document.getElementById('copyStatus');
+
+function esc(value) {
+  return (value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/\n/g, '<br>');
+}
+
+function sectionHtml(text) {
+  if (!text.trim()) return '';
+  return `<tr><td style="padding:0 24px 14px;font-size:16px;line-height:1.5;color:#111827;">${esc(text)}</td></tr>`;
+}
+
+function buildEmailHtml() {
+  const type = fields.emailType.value;
+  const subject = fields.subject.value || (type === 'communique' ? 'Capital Chordsmen Communique' : "What's Happening!");
+  const preheader = fields.preheader.value || 'Capital Chordsmen (Tallahassee Chapter, Barbershop Harmony Society)';
+  const headline = fields.headline.value || subject;
+  const intro = fields.intro.value || 'Hello Capital Chordsmen community,';
+  const ctaText = fields.ctaText.value || 'Learn More';
+  const ctaUrl = fields.ctaUrl.value || 'https://capitalchordsmen.com';
+  const footerNotes = fields.footerNotes.value || 'Capital Chordsmen — Tallahassee Chapter of the Barbershop Harmony Society';
+  const unsubscribeUrl = fields.unsubscribeUrl.value.trim();
+
+  const sections = [fields.section1.value, fields.section2.value, fields.section3.value].map(sectionHtml).join('');
+
+  let compliance = '';
+  if (type === 'communique') {
+    compliance = `<tr><td style="padding:12px 24px 20px;border-top:1px solid #e5e7eb;font-size:12px;color:#4b5563;line-height:1.5;">` +
+      `This distribution email was sent by Capital Chordsmen.<br>` +
+      (unsubscribeUrl ? `<a href="${esc(unsubscribeUrl)}" style="color:#374151;text-decoration:underline;">Unsubscribe</a>` :
+      'Use your email platform\'s approved unsubscribe/list-management footer for this list.') +
+      `</td></tr>`;
+  }
+
+  return `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${esc(preheader)}</div>
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="padding:20px 0;background:#f3f4f6;">
+<tr><td align="center">
+<table role="presentation" cellpadding="0" cellspacing="0" width="640" style="width:640px;max-width:640px;background:#ffffff;border:1px solid #e5e7eb;">
+<tr><td style="padding:20px 24px;font-size:24px;font-weight:700;color:#111827;">Capital Chordsmen</td></tr>
+<tr><td style="padding:0 24px 12px;font-size:28px;font-weight:700;color:#111827;line-height:1.2;">${esc(headline)}</td></tr>
+<tr><td style="padding:0 24px 16px;font-size:16px;line-height:1.5;color:#111827;">${esc(intro)}</td></tr>
+${sections}
+<tr><td style="padding:10px 24px 24px;"><a href="${esc(ctaUrl)}" style="display:inline-block;padding:12px 18px;background:#111827;color:#ffffff;text-decoration:none;font-weight:700;">${esc(ctaText)}</a></td></tr>
+<tr><td style="padding:12px 24px;border-top:1px solid #e5e7eb;font-size:13px;line-height:1.5;color:#4b5563;">${esc(footerNotes)}</td></tr>
+${compliance}
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+function render() {
+  const html = buildEmailHtml();
+  htmlOutput.value = html;
+  previewFrame.srcdoc = html;
+}
+
+document.getElementById('generateBtn').addEventListener('click', render);
+Object.values(fields).forEach((el) => {
+  el.addEventListener('input', render);
+  el.addEventListener('change', render);
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(htmlOutput.value);
+    copyStatus.textContent = 'HTML copied to clipboard.';
+  } catch (e) {
+    copyStatus.textContent = 'Copy failed. Copy manually from Generated HTML.';
+  }
+});
+
+fields.subject.value = 'Capital Chordsmen Communique';
+fields.preheader.value = 'Capital Chordsmen chapter update';
+fields.headline.value = 'Capital Chordsmen Update';
+fields.intro.value = 'Hello singers and friends,';
+fields.ctaText.value = 'Visit capitalchordsmen.com';
+fields.ctaUrl.value = 'https://capitalchordsmen.com';
+render();
+</script>
+</body>
+</html>
