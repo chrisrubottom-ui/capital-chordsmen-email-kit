@@ -6,11 +6,11 @@
   <title>Capital Chordsmen Email HTML Builder</title>
   <style>
     :root {
-      --brand-navy: #0f2a44;
-      --brand-gold: #cda349;
-      --brand-light: #f5f7fa;
-      --text-dark: #1f2933;
-      --border: #d7dee8;
+      --brand-burgundy: #7A1F2B;
+      --brand-gold: #C9A646;
+      --text-dark: #333333;
+      --panel-border: #e3e3e3;
+      --bg: #f7f4ef;
     }
 
     * { box-sizing: border-box; }
@@ -19,7 +19,7 @@
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       color: var(--text-dark);
-      background: #eef2f7;
+      background: var(--bg);
       line-height: 1.4;
     }
 
@@ -34,22 +34,22 @@
 
     .panel, .preview-panel {
       background: #fff;
-      border: 1px solid var(--border);
+      border: 1px solid var(--panel-border);
       border-radius: 10px;
       padding: 18px;
-      box-shadow: 0 3px 12px rgba(15, 42, 68, 0.08);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
     }
 
-    h1 { margin: 0 0 10px; color: var(--brand-navy); font-size: 1.5rem; }
-    h2 { margin: 20px 0 8px; color: var(--brand-navy); font-size: 1rem; }
+    h1 { margin: 0 0 10px; color: var(--brand-burgundy); font-size: 1.5rem; }
+    h2 { margin: 20px 0 8px; color: var(--brand-burgundy); font-size: 1rem; }
 
-    .hint { font-size: 0.9rem; color: #4b5d70; margin-bottom: 14px; }
+    .hint { font-size: 0.9rem; color: #5c5c5c; margin-bottom: 14px; }
 
     label { display: block; font-weight: bold; margin: 10px 0 6px; font-size: 0.9rem; }
 
     input[type="text"], textarea, select {
       width: 100%;
-      border: 1px solid #c8d3e0;
+      border: 1px solid #cccccc;
       border-radius: 6px;
       padding: 8px;
       font-size: 0.9rem;
@@ -66,7 +66,7 @@
     button {
       border: 0;
       border-radius: 6px;
-      background: var(--brand-navy);
+      background: var(--brand-burgundy);
       color: #fff;
       padding: 10px 12px;
       cursor: pointer;
@@ -74,14 +74,14 @@
       font-weight: bold;
     }
 
-    button.secondary { background: #4a6178; }
+    button.secondary { background: #6f6f6f; }
 
     #copyStatus { font-size: 0.85rem; color: #2f6f3e; margin-top: 8px; min-height: 1.2em; }
 
     iframe {
       width: 100%;
       min-height: 720px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--panel-border);
       border-radius: 8px;
       background: #fff;
     }
@@ -93,7 +93,7 @@
       min-height: 180px;
       font-family: "Courier New", Courier, monospace;
       font-size: 0.8rem;
-      background: #f8fbff;
+      background: #fafafa;
     }
 
     @media (max-width: 980px) {
@@ -105,17 +105,17 @@
   <div class="page">
     <div class="panel">
       <h1>Capital Chordsmen Email Builder</h1>
-      <p class="hint">Fill in fields to generate email-friendly HTML. Use the preview to review, then copy/paste into your email editor.</p>
+      <p class="hint">Generate simple email-friendly HTML using Capital Chordsmen styling from the brand kit and examples.</p>
 
       <label for="emailType">Email Type</label>
       <select id="emailType">
         <option value="communique">Communique distribution email</option>
-        <option value="newsletter">Weekly member newsletter: What's Happening!</option>
+        <option value="newsletter">What's Happening! member newsletter</option>
       </select>
 
       <h2>Header Content</h2>
       <label for="subject">Subject</label>
-      <input id="subject" type="text" placeholder="Example: Capital Chordsmen Communique - May 2026" />
+      <input id="subject" type="text" placeholder="Example: Capital Chordsmen Communique" />
 
       <label for="preheader">Preheader</label>
       <input id="preheader" type="text" placeholder="Short preview text shown in inboxes" />
@@ -144,16 +144,16 @@
         </div>
         <div>
           <label for="ctaUrl">CTA URL</label>
-          <input id="ctaUrl" type="text" placeholder="https://example.com" />
+          <input id="ctaUrl" type="text" placeholder="https://capitalchordsmen.com" />
         </div>
       </div>
 
       <h2>Footer</h2>
       <label for="footerNotes">Footer Notes</label>
-      <textarea id="footerNotes" placeholder="Any footer details"></textarea>
+      <textarea id="footerNotes" placeholder="Optional footer note"></textarea>
 
-      <label for="unsubscribeUrl">Optional Unsubscribe URL</label>
-      <input id="unsubscribeUrl" type="text" placeholder="https://example.com/unsubscribe" />
+      <label for="unsubscribeUrl">Unsubscribe URL (Communique only)</label>
+      <input id="unsubscribeUrl" type="text" placeholder="mailto:unsubscribe@capitalchordsmen.com" />
 
       <div class="actions">
         <button id="generateBtn">Generate HTML</button>
@@ -205,36 +205,32 @@
 
     function buildSection(text) {
       if (!text.trim()) return '';
-      return `<tr><td style="padding:0 24px 16px;color:#1f2933;font-size:16px;line-height:1.5;">${esc(text)}</td></tr>`;
+      return `<tr><td style="padding:0 24px 16px;color:#333333;font-size:16px;line-height:1.5;">${esc(text)}</td></tr>`;
     }
 
     function buildEmailHtml() {
       const type = fields.emailType.value;
-      const subject = fields.subject.value || (type === 'communique' ? 'Capital Chordsmen Communique' : "What's Happening!");
-      const preheader = fields.preheader.value || 'Capital Chordsmen update';
+      const subject = fields.subject.value || (type === 'communique' ? 'Capital Chordsmen Communique' : "What’s Happening!");
+      const preheader = fields.preheader.value || 'The Capital Chordsmen update';
       const headline = fields.headline.value || subject;
-      const intro = fields.intro.value || 'Hello Capital Chordsmen community,';
-      const ctaText = fields.ctaText.value || 'Read More';
-      const ctaUrl = fields.ctaUrl.value || 'https://capitalchordsmen.org';
-      const footerNotes = fields.footerNotes.value || 'Capital Chordsmen • Keep the whole world singing!';
+      const intro = fields.intro.value || 'Hello everyone,';
+      const ctaText = fields.ctaText.value || 'Learn More';
+      const ctaUrl = fields.ctaUrl.value || 'https://capitalchordsmen.com';
+      const footerNotes = fields.footerNotes.value.trim();
       const unsubscribeUrl = fields.unsubscribeUrl.value.trim();
 
       const sectionHtml = [fields.section1.value, fields.section2.value, fields.section3.value]
         .map(buildSection)
         .join('');
 
-      let complianceHtml = '';
-      if (type === 'communique') {
-        const unsubscribeLine = unsubscribeUrl
-          ? `<a href="${esc(unsubscribeUrl)}" style="color:#4a6178;text-decoration:underline;">Unsubscribe</a>`
-          : 'To unsubscribe, reply to this email or contact your chapter administrator.';
+      const optionalFooterNote = footerNotes
+        ? `<p style="margin:12px 0 0 0;font-size:12px;color:#999999;">${esc(footerNotes)}</p>`
+        : '';
 
-        complianceHtml = `
-          <tr>
-            <td style="padding:14px 24px 20px;color:#4a6178;font-size:12px;line-height:1.5;border-top:1px solid #d7dee8;">
-              This communication is intended for Capital Chordsmen distribution lists.<br>${unsubscribeLine}
-            </td>
-          </tr>`;
+      let unsubscribeBlock = '';
+      if (type === 'communique') {
+        const link = unsubscribeUrl || 'mailto:unsubscribe@capitalchordsmen.com?subject=Unsubscribe%20%E2%80%93%20Capital%20Chordsmen';
+        unsubscribeBlock = `<p style="margin:10px 0 0 0;font-size:12px;color:#999999;"><a href="${esc(link)}" style="color:#999999;text-decoration:underline;">Unsubscribe from this list</a></p>`;
       }
 
       return `<!doctype html>
@@ -244,45 +240,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${esc(subject)}</title>
 </head>
-<body style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;">
+<body style="margin:0;padding:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#333333;line-height:1.5;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${esc(preheader)}</div>
-  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#eef2f7;padding:20px 0;">
+  <div style="text-align:center;padding:20px 0 10px 0;">
+    <h1 style="margin:0;color:#7A1F2B;font-family:Georgia,serif;font-size:30px;">The Capital Chordsmen</h1>
+    <p style="margin:6px 0 0 0;font-size:14px;color:#333333;">The Tallahassee Chapter of the Barbershop Harmony Society</p>
+    <hr style="border:none;border-top:2px solid #C9A646;width:60%;margin:14px auto;">
+  </div>
+
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
     <tr>
       <td align="center">
-        <table role="presentation" cellpadding="0" cellspacing="0" width="640" style="width:640px;max-width:640px;background:#ffffff;border:1px solid #d7dee8;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="700" style="width:700px;max-width:700px;">
           <tr>
-            <td style="background:#0f2a44;color:#ffffff;padding:20px 24px;font-size:22px;font-weight:bold;">
-              Capital Chordsmen
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:22px 24px 10px;color:#0f2a44;font-size:28px;line-height:1.2;font-weight:bold;">
+            <td style="padding:0 24px 12px;color:#7A1F2B;font-size:28px;line-height:1.2;font-weight:bold;">
               ${esc(headline)}
             </td>
           </tr>
           <tr>
-            <td style="padding:0 24px 18px;color:#1f2933;font-size:16px;line-height:1.5;">
+            <td style="padding:0 24px 18px;color:#333333;font-size:16px;line-height:1.5;">
               ${esc(intro)}
             </td>
           </tr>
           ${sectionHtml}
           <tr>
             <td style="padding:12px 24px 24px;">
-              <a href="${esc(ctaUrl)}" style="display:inline-block;background:#cda349;color:#0f2a44;padding:12px 18px;text-decoration:none;font-size:16px;font-weight:bold;border-radius:3px;">
+              <a href="${esc(ctaUrl)}" style="display:inline-block;background:#7A1F2B;color:#ffffff;padding:12px 20px;text-decoration:none;border-radius:4px;font-weight:bold;">
                 ${esc(ctaText)}
               </a>
             </td>
           </tr>
-          <tr>
-            <td style="padding:14px 24px;color:#4a6178;font-size:13px;line-height:1.5;border-top:1px solid #d7dee8;">
-              ${esc(footerNotes)}
-            </td>
-          </tr>
-          ${complianceHtml}
         </table>
       </td>
     </tr>
   </table>
+
+  <div style="max-width:700px;margin:40px auto 20px auto;text-align:center;font-size:14px;color:#666666;">
+    <hr style="border:none;border-top:1px solid #E5E5E5;margin-bottom:20px;">
+    <p style="margin:5px 0;font-weight:bold;color:#7A1F2B;">The Capital Chordsmen</p>
+    <p style="margin:5px 0;">The Tallahassee Chapter of the Barbershop Harmony Society</p>
+    <p style="margin:12px 0;">
+      <a href="https://capitalchordsmen.com" style="color:#7A1F2B;text-decoration:none;">Website</a>
+      &nbsp;|&nbsp;
+      <a href="https://www.facebook.com/thecapitalchordsmen/" style="color:#7A1F2B;text-decoration:none;">Facebook</a>
+      &nbsp;|&nbsp;
+      <a href="https://www.instagram.com/tallybhs" style="color:#7A1F2B;text-decoration:none;">Instagram</a>
+      &nbsp;|&nbsp;
+      <a href="https://x.com/tallybhs" style="color:#7A1F2B;text-decoration:none;">X</a>
+    </p>
+    ${optionalFooterNote}
+    ${unsubscribeBlock}
+  </div>
 </body>
 </html>`;
     }
@@ -310,14 +318,16 @@
     });
 
     fields.subject.value = 'Capital Chordsmen Communique';
-    fields.preheader.value = 'Chapter updates and upcoming opportunities';
+    fields.preheader.value = 'Chapter updates and announcements';
     fields.headline.value = 'Capital Chordsmen Update';
-    fields.intro.value = 'Hello singers and friends, here are the latest chapter updates.';
-    fields.section1.value = 'Rehearsal this week is Tuesday at 7:00 PM.';
-    fields.section2.value = 'Performance signups are open for next month.';
-    fields.ctaText.value = 'View Full Calendar';
-    fields.ctaUrl.value = 'https://capitalchordsmen.org/calendar';
-    fields.footerNotes.value = 'Capital Chordsmen | Washington, DC area chapter updates';
+    fields.intro.value = 'Hello everyone,';
+    fields.section1.value = '';
+    fields.section2.value = '';
+    fields.section3.value = '';
+    fields.ctaText.value = 'Learn More';
+    fields.ctaUrl.value = 'https://capitalchordsmen.com';
+    fields.footerNotes.value = '';
+    fields.unsubscribeUrl.value = '';
 
     render();
   </script>
